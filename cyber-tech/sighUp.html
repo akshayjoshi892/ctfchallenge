@@ -1,0 +1,151 @@
+<html>
+   <head>
+      <title>Firebase Authentication</title>
+      <link rel="stylesheet" href="cssFile.css" />
+   </head>
+
+   <body>
+      <div id="login-box">
+         <div class="left">
+            <h1 id="status">Sign Up</h1>
+            <input type="text" id="username" placeholder="username" />
+            <input type="text" id="email" name="email" placeholder="E-mail" />
+            <input
+               type="password"
+               id="password"
+               name="password"
+               placeholder="Password"
+            />
+
+            <input
+               type="submit"
+               id="sighUp"
+               name="signup_submit"
+               value="Sign Up"
+            />
+            <!-- <input type="submit" id='login' name="login" value="Login" /> -->
+            <a href="Login.html" id="signin">Sign In</a>
+         </div>
+      </div>
+   </body>
+
+   <script type="module">
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.4.0/firebase-app.js";
+      import {
+         getDatabase,
+         set,
+         ref,
+         update,
+      } from "https://www.gstatic.com/firebasejs/9.4.0/firebase-database.js";
+      import {
+         getAuth,
+         createUserWithEmailAndPassword,
+         signInWithEmailAndPassword,
+         onAuthStateChanged,
+         signOut,
+      } from "https://www.gstatic.com/firebasejs/9.4.0/firebase-auth.js";
+      // TODO: Add SDKs for Firebase products that you want to use
+      // https://firebase.google.com/docs/web/setup#available-libraries
+
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+         apiKey: "AIzaSyBlfVV5YGx0ZvJT2MNt_yEe5hN-Kvj_pTQ",
+         authDomain: "login-5d035.firebaseapp.com",
+         databaseURL: "https://login-5d035-default-rtdb.firebaseio.com",
+         projectId: "login-5d035",
+         storageBucket: "login-5d035.appspot.com",
+         messagingSenderId: "1078392145381",
+         appId: "1:1078392145381:web:07cc646d2ea099a4691b0c",
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const database = getDatabase(app);
+      const auth = getAuth();
+
+      sighUp.addEventListener("click", (e) => {
+         var email = document.getElementById("email").value;
+         var password = document.getElementById("password").value;
+         var username = document.getElementById("username").value;
+
+         createUserWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+               // Signed in
+               const user = userCredential.user;
+
+               set(ref(database, "users/" + user.uid), {
+                  username: username,
+                  email: email,
+               });
+
+               alert("user created! you can login");
+               window.location.href = "Login.html";
+               // ...
+            })
+            .catch((error) => {
+               const errorCode = error.code;
+               const errorMessage = error.message;
+
+               alert(errorMessage);
+               // ..
+            });
+      });
+
+      login.addEventListener("click", (e) => {
+         var email = document.getElementById("email").value;
+         var password = document.getElementById("password").value;
+
+         signInWithEmailAndPassword(auth, email, password)
+            .then((userCredential) => {
+               // Signed in
+               const user = userCredential.user;
+
+               const dt = new Date();
+               update(ref(database, "users/" + user.uid), {
+                  last_login: dt,
+               });
+
+               alert("User loged in sucessfulykk!");
+
+               // ...
+            })
+            .catch((error) => {
+               const errorCode = error.code;
+               const errorMessage = error.message;
+
+               alert(errorMessage);
+            });
+      });
+
+      const user = auth.currentUser;
+      onAuthStateChanged(auth, (user) => {
+         if (user) {
+            // User is signed in, see docs for a list of available properties
+            // https://firebase.google.com/docs/reference/js/firebase.User
+            const uid = user.uid;
+            //bla bla bla
+            // ...
+         } else {
+            // User is signed out
+            // ...
+            //bla bla bla
+         }
+      });
+
+      logout.addEventListener("click", (e) => {
+         signOut(auth)
+            .then(() => {
+               // Sign-out successful.
+               alert("user loged out");
+            })
+            .catch((error) => {
+               // An error happened.
+               const errorCode = error.code;
+               const errorMessage = error.message;
+
+               alert(errorMessage);
+            });
+      });
+   </script>
+</html>
